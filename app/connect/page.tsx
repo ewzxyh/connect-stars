@@ -2,14 +2,15 @@
 
 import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { GameSearch } from "@/components/game-search";
 import { MovieGraph, type MovieGraphRef } from "@/components/movie-graph";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import type { Actor, MultiSearchResult } from "@/types/tmdb";
 
-export default function ConnectPage() {
+// Componente que usa useSearchParams envolvido por Suspense
+function ConnectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [actor1, setActor1] = useState<Actor | null>(null);
@@ -117,7 +118,10 @@ export default function ConnectPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        Loading...
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Carregando atores...</p>
+        </div>
       </div>
     );
   }
@@ -125,7 +129,10 @@ export default function ConnectPage() {
   if (!actor1 || !actor2) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        Could not load actors. Redirecting home...
+        <div className="text-center">
+          <p>Não foi possível carregar os atores.</p>
+          <p className="text-muted-foreground">Redirecionando para a página inicial...</p>
+        </div>
       </div>
     );
   }
@@ -163,5 +170,26 @@ export default function ConnectPage() {
         />
       </footer>
     </main>
+  );
+}
+
+// Componente de fallback para o Suspense
+function ConnectPageFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <p>Carregando página...</p>
+      </div>
+    </div>
+  );
+}
+
+// Componente principal com Suspense boundary
+export default function ConnectPage() {
+  return (
+    <Suspense fallback={<ConnectPageFallback />}>
+      <ConnectContent />
+    </Suspense>
   );
 }
