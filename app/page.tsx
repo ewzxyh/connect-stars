@@ -1,103 +1,144 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { ActorSearch } from '@/components/actor-search'
+import { Button } from '@/components/ui/button'
+import { type Actor } from '@/types/tmdb'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { HelpCircle } from 'lucide-react'
+import { popularActors } from '@/lib/popular-actors'
+
+export default function HomePage() {
+  const [actor1, setActor1] = useState<Actor | null>(null)
+  const [actor2, setActor2] = useState<Actor | null>(null)
+  const router = useRouter()
+
+  const handleStartGame = () => {
+    if (actor1 && actor2) {
+      router.push(`/connect?actor1=${actor1.id}&actor2=${actor2.id}`)
+    }
+  }
+
+  const handleChooseForMe = (setter: (actor: Actor | null) => void) => {
+    const disabledActors = [actor1, actor2].filter(
+      (actor) => actor !== null,
+    ) as Actor[]
+    const availableActors = popularActors.filter(
+      (actor) => !disabledActors.some((disabled) => disabled.id === actor.id),
+    )
+    const randomActorData =
+      availableActors[Math.floor(Math.random() * availableActors.length)]
+
+    if (randomActorData) {
+      const randomActor: Actor = {
+        id: randomActorData.id,
+        name: randomActorData.name,
+        profile_path: randomActorData.profile_path,
+        popularity: 0,
+      }
+      setter(randomActor)
+    }
+  }
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+      <header className="absolute top-4 right-4">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="icon">
+              <HelpCircle className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>How to Play</DialogTitle>
+              <DialogDescription>
+                Figure out how two movie stars are connected through their
+                films.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <div>
+                <h3 className="font-bold">The Goal</h3>
+                <p>
+                  Find the shortest path between two actors by connecting them
+                  through the movies they've starred in together.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-bold">Expand Your Board</h3>
+                <p>
+                  Type the names of movies or stars connected to the ones
+                  already on your board to build new connections.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-bold">Connect the Stars</h3>
+                <p>
+                  Challenge yourself to find the shortest path possible!
+                </p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </header>
+      <div className="text-center mb-12">
+        <h1 className="text-5xl font-bold">Connect the Stars</h1>
+        <p className="mt-2 text-muted-foreground">
+          Choose two movie stars to begin.
+        </p>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="flex flex-col md:flex-row items-start gap-8">
+        <div className="flex flex-col items-center gap-4">
+          <ActorSearch
+            actorNumber={1}
+            selectedActor={actor1}
+            onSelectActor={setActor1}
+            disabledActors={actor2 ? [actor2] : []}
+          />
+          <Button
+            variant="outline"
+            onClick={() => handleChooseForMe(setActor1)}
+            disabled={!!actor1}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            Choose for me
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <div className="flex flex-col items-center gap-4">
+          <ActorSearch
+            actorNumber={2}
+            selectedActor={actor2}
+            onSelectActor={setActor2}
+            disabledActors={actor1 ? [actor1] : []}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <Button
+            variant="outline"
+            onClick={() => handleChooseForMe(setActor2)}
+            disabled={!!actor2}
+          >
+            Choose for me
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-12">
+        <Button
+          size="lg"
+          disabled={!actor1 || !actor2}
+          onClick={handleStartGame}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+          Connect
+        </Button>
+      </div>
+    </main>
+  )
 }
