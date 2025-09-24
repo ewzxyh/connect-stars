@@ -14,7 +14,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { HelpCircle } from 'lucide-react'
-import { popularActors } from '@/lib/popular-actors'
 
 export default function HomePage() {
   const [actor1, setActor1] = useState<Actor | null>(null)
@@ -24,27 +23,6 @@ export default function HomePage() {
   const handleStartGame = () => {
     if (actor1 && actor2) {
       router.push(`/connect?actor1=${actor1.id}&actor2=${actor2.id}`)
-    }
-  }
-
-  const handleChooseForMe = (setter: (actor: Actor | null) => void) => {
-    const disabledActors = [actor1, actor2].filter(
-      (actor) => actor !== null,
-    ) as Actor[]
-    const availableActors = popularActors.filter(
-      (actor) => !disabledActors.some((disabled) => disabled.id === actor.id),
-    )
-    const randomActorData =
-      availableActors[Math.floor(Math.random() * availableActors.length)]
-
-    if (randomActorData) {
-      const randomActor: Actor = {
-        id: randomActorData.id,
-        name: randomActorData.name,
-        profile_path: randomActorData.profile_path,
-        popularity: 0,
-      }
-      setter(randomActor)
     }
   }
 
@@ -97,37 +75,19 @@ export default function HomePage() {
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row items-start gap-8">
-        <div className="flex flex-col items-center gap-4">
-          <ActorSearch
-            actorNumber={1}
-            selectedActor={actor1}
-            onSelectActor={setActor1}
-            disabledActors={actor2 ? [actor2] : []}
-          />
-          <Button
-            variant="outline"
-            onClick={() => handleChooseForMe(setActor1)}
-            disabled={!!actor1}
-          >
-            Choose for me
-          </Button>
-        </div>
-        <div className="flex flex-col items-center gap-4">
-          <ActorSearch
-            actorNumber={2}
-            selectedActor={actor2}
-            onSelectActor={setActor2}
-            disabledActors={actor1 ? [actor1] : []}
-          />
-          <Button
-            variant="outline"
-            onClick={() => handleChooseForMe(setActor2)}
-            disabled={!!actor2}
-          >
-            Choose for me
-          </Button>
-        </div>
+      <div className="flex flex-col md:flex-row items-start gap-12">
+        <ActorSearch
+          actorNumber={1}
+          selectedActor={actor1}
+          onSelectActor={setActor1}
+          disabledActors={actor2 ? [actor2] : []}
+        />
+        <ActorSearch
+          actorNumber={2}
+          selectedActor={actor2}
+          onSelectActor={setActor2}
+          disabledActors={actor1 ? [actor1] : []}
+        />
       </div>
 
       <div className="mt-12">

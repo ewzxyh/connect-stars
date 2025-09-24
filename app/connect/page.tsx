@@ -90,7 +90,7 @@ export default function ConnectPage() {
           label: item.title ?? 'Untitled Movie',
           type: 'movie',
           image: item.poster_path
-            ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
+            ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
             : undefined,
         },
       }
