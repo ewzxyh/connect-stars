@@ -1,9 +1,9 @@
-import {
-  type MovieCreditsResponse,
-  type PersonMovieCreditsResponse,
-  type SearchPersonResponse,
-  type PersonDetailsResponse,
-  type MultiSearchResponse,
+import type {
+  MovieCreditsResponse,
+  MultiSearchResponse,
+  PersonDetailsResponse,
+  PersonMovieCreditsResponse,
+  SearchPersonResponse,
 } from "@/types/tmdb";
 
 const TMDB_ACCESS_TOKEN = process.env.TMDB_TOKEN;

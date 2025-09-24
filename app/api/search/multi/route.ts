@@ -1,5 +1,5 @@
-import { multiSearch } from "@/services/tmdb";
 import { NextResponse } from "next/server";
+import { multiSearch } from "@/services/tmdb";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       .sort((a, b) => b.popularity - a.popularity);
 
     return NextResponse.json({ results: filteredResults });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { error: "Failed to fetch data from TMDB" },
       { status: 500 },

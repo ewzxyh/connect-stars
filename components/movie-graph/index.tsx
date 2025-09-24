@@ -1,16 +1,9 @@
 "use client";
 
-import { type Actor } from "@/types/tmdb";
-import cytoscape from "cytoscape";
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from "react";
+import type cytoscape from "cytoscape";
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
-import { useTheme } from 'next-themes'
+import type { Actor } from "@/types/tmdb";
 
 interface MovieGraphProps {
   actor1: Actor;
@@ -25,7 +18,6 @@ export interface MovieGraphRef {
 export const MovieGraph = forwardRef<MovieGraphRef, MovieGraphProps>(
   ({ actor1, actor2, onPathFound }, ref) => {
     const cyRef = useRef<cytoscape.Core | null>(null);
-    const { resolvedTheme } = useTheme()
 
     const initialElements = [
       {
@@ -76,8 +68,6 @@ export const MovieGraph = forwardRef<MovieGraphRef, MovieGraphProps>(
       padding: 30,
       spacingFactor: 1.5,
       avoidOverlap: true,
-      animate: true,
-      animationDuration: 500,
     };
 
     useImperativeHandle(ref, () => ({
@@ -100,13 +90,11 @@ export const MovieGraph = forwardRef<MovieGraphRef, MovieGraphProps>(
           "text-valign": "bottom",
           "text-halign": "center",
           "text-margin-y": 8,
-          "background-color": "var(--card)",
-          "border-color": "var(--border)",
-          color: "var(--foreground)",
-          "font-family": "var(--font-sans)",
+          "background-color": "#fff",
           "background-fit": "cover",
+          "border-color": "#000",
           "border-width": 2,
-          "border-opacity": 1,
+          "border-opacity": 0.5,
         },
       },
       {
@@ -127,63 +115,26 @@ export const MovieGraph = forwardRef<MovieGraphRef, MovieGraphProps>(
         selector: "edge",
         style: {
           width: 4,
-          "line-color": "var(--primary)",
-          "target-arrow-color": "var(--primary)",
+          "line-color": "#facc15", // yellow-400
+          "target-arrow-color": "#facc15",
           "curve-style": "bezier",
         },
       },
       {
         selector: ".highlighted",
         style: {
-          "border-color": "var(--ring)",
+          "border-color": "#22c55e", // green-500
           "border-width": 4,
-          "line-color": "var(--ring)",
-          "target-arrow-color": "var(--ring)",
-          "transition-property":
-            "border-color, line-color, target-arrow-color",
+          "line-color": "#22c55e",
+          "target-arrow-color": "#22c55e",
+          "transition-property": "border-color, line-color, target-arrow-color",
           "transition-duration": "0.5s",
         },
       },
     ];
 
-    useEffect(() => {
-      if (cyRef.current) {
-        const root = document.documentElement
-        const styles = getComputedStyle(root)
-
-        const newStyles = [
-          {
-            selector: 'node',
-            style: {
-              'background-color': styles.getPropertyValue('--card').trim(),
-              'border-color': styles.getPropertyValue('--border').trim(),
-              color: styles.getPropertyValue('--foreground').trim(),
-              'font-family': styles.getPropertyValue('--font-sans').trim(),
-            },
-          },
-          {
-            selector: 'edge',
-            style: {
-              'line-color': styles.getPropertyValue('--primary').trim(),
-              'target-arrow-color': styles.getPropertyValue('--primary').trim(),
-            },
-          },
-          {
-            selector: '.highlighted',
-            style: {
-              'border-color': styles.getPropertyValue('--ring').trim(),
-              'line-color': styles.getPropertyValue('--ring').trim(),
-              'target-arrow-color': styles.getPropertyValue('--ring').trim(),
-            },
-          },
-        ]
-
-        cyRef.current.style(newStyles)
-      }
-    }, [resolvedTheme])
-
     return (
-      <div className="h-full w-full rounded-xl border bg-card">
+      <div className="h-full w-full">
         <CytoscapeComponent
           elements={CytoscapeComponent.normalizeElements(initialElements)}
           style={{ width: "100%", height: "100%" }}

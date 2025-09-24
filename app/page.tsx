@@ -1,10 +1,10 @@
 "use client";
 
+import { HelpCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { ActorSearch } from "@/components/actor-search";
 import { Button } from "@/components/ui/button";
-import { type Actor } from "@/types/tmdb";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { HelpCircle } from "lucide-react";
+import type { Actor } from "@/types/tmdb";
 
 export default function HomePage() {
   const [actor1, setActor1] = useState<Actor | null>(null);
@@ -78,13 +78,13 @@ export default function HomePage() {
           actorNumber={1}
           selectedActor={actor1}
           onSelectActor={setActor1}
-          disabledActors={actor2 ? [actor2] : []}
+          disabledActors={[actor2]}
         />
         <ActorSearch
           actorNumber={2}
           selectedActor={actor2}
           onSelectActor={setActor2}
-          disabledActors={actor1 ? [actor1] : []}
+          disabledActors={[actor1]}
         />
       </div>
 

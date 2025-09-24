@@ -1,13 +1,11 @@
 "use client";
 
+import { Check, ChevronsUpDown } from "lucide-react";
+import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -21,26 +19,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { type Actor } from "@/types/tmdb";
 import { useDebounce } from "@/hooks/use-debounce";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { popularActors } from "@/lib/popular-actors";
+import { cn } from "@/lib/utils";
+import type { Actor, SearchPersonResponse } from "@/types/tmdb";
 
 interface ActorSearchProps {
   actorNumber: number;
   selectedActor: Actor | null;
   onSelectActor: (actor: Actor | null) => void;
-  disabledActors: Actor[];
+  disabledActors?: (Actor | null)[];
 }
 
 export function ActorSearch({
   actorNumber,
   selectedActor,
   onSelectActor,
-  disabledActors,
+  disabledActors = [],
 }: ActorSearchProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,18 +45,18 @@ export function ActorSearch({
 
   const handleSearch = useCallback(async (query: string) => {
     if (query.length < 2) {
-      setSearchResults([]);
+      setSearchResults([] as Actor[]);
       return;
     }
 
     setIsLoading(true);
     try {
       const response = await fetch(`/api/search/person?query=${query}`);
-      const data = await response.json();
-      setSearchResults(data.results || []);
+      const data: SearchPersonResponse = await response.json();
+      setSearchResults(data.results || [] as Actor[]);
     } catch (error) {
       console.error("Failed to search for actors:", error);
-      setSearchResults([]);
+      setSearchResults([] as Actor[]);
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +70,7 @@ export function ActorSearch({
     onSelectActor(actor);
     setOpen(false);
     setSearchTerm("");
-    setSearchResults([]);
+    setSearchResults([] as Actor[]);
   };
 
   const handleClear = () => {
@@ -84,7 +79,10 @@ export function ActorSearch({
 
   const handleChooseForMe = async () => {
     const availableActors = popularActors.filter(
-      (actor) => !disabledActors.some((disabled) => disabled.id === actor.id),
+      (actor) =>
+        !disabledActors.some(
+          (disabled) => disabled && disabled.id === actor.id,
+        ),
     );
     const randomActorData =
       availableActors[Math.floor(Math.random() * availableActors.length)];
@@ -180,13 +178,13 @@ export function ActorSearch({
                       <CommandEmpty>No results found.</CommandEmpty>
                     )}
                     <CommandGroup>
-                      {searchResults.map((actor) => (
+                      {searchResults.map((actor: Actor) => (
                         <CommandItem
                           key={actor.id}
                           value={actor.name}
                           onSelect={() => handleSelect(actor)}
                           disabled={disabledActors.some(
-                            (a) => a.id === actor.id,
+                            (a) => a?.id === actor.id,
                           )}
                           className="flex items-center gap-2"
                         >
@@ -203,7 +201,9 @@ export function ActorSearch({
                           <Check
                             className={cn(
                               "ml-auto h-4 w-4",
-                              false ? "opacity-100" : "opacity-0",
+                              selectedActor?.id === actor.id
+                                ? "opacity-100"
+                                : "opacity-0",
                             )}
                           />
                         </CommandItem>

@@ -1,5 +1,7 @@
 "use client";
 
+import { Film, User } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Command,
@@ -10,9 +12,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useDebounce } from "@/hooks/use-debounce";
-import { type MultiSearchResult } from "@/types/tmdb";
-import { useCallback, useEffect, useState } from "react";
-import { Film, User } from "lucide-react";
+import type { MultiSearchResult } from "@/types/tmdb";
 
 interface GameSearchProps {
   onSelect: (item: MultiSearchResult) => void;

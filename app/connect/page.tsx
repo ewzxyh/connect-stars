@@ -1,13 +1,13 @@
 "use client";
 
-import { MovieGraph, type MovieGraphRef } from "@/components/movie-graph";
-import { type Actor, type MultiSearchResult } from "@/types/tmdb";
+import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { GameSearch } from "@/components/game-search";
+import { MovieGraph, type MovieGraphRef } from "@/components/movie-graph";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import type { Actor, MultiSearchResult } from "@/types/tmdb";
 
 export default function ConnectPage() {
   const router = useRouter();
