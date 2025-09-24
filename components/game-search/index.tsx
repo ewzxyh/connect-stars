@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Command,
   CommandEmpty,
@@ -8,60 +8,60 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import { useDebounce } from '@/hooks/use-debounce'
-import { type MultiSearchResult } from '@/types/tmdb'
-import { useCallback, useEffect, useState } from 'react'
-import { Film, User } from 'lucide-react'
+} from "@/components/ui/command";
+import { useDebounce } from "@/hooks/use-debounce";
+import { type MultiSearchResult } from "@/types/tmdb";
+import { useCallback, useEffect, useState } from "react";
+import { Film, User } from "lucide-react";
 
 interface GameSearchProps {
-  onSelect: (item: MultiSearchResult) => void
-  connectedActorIds: Set<string>
+  onSelect: (item: MultiSearchResult) => void;
+  connectedActorIds: Set<string>;
 }
 
 export function GameSearch({ onSelect, connectedActorIds }: GameSearchProps) {
-  const [searchTerm, setSearchTerm] = useState('')
-  const debouncedSearchTerm = useDebounce(searchTerm, 300)
-  const [searchResults, setSearchResults] = useState<MultiSearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const [searchResults, setSearchResults] = useState<MultiSearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSearch = useCallback(
     async (query: string) => {
       if (query.length < 2) {
-        setSearchResults([])
-        return
+        setSearchResults([]);
+        return;
       }
 
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const response = await fetch(`/api/search/multi?query=${query}`)
-        const data = await response.json()
+        const response = await fetch(`/api/search/multi?query=${query}`);
+        const data = await response.json();
         const filteredResults = (data.results || []).filter(
           (item: MultiSearchResult) =>
-            item.media_type === 'movie' ||
-            (item.media_type === 'person' &&
+            item.media_type === "movie" ||
+            (item.media_type === "person" &&
               !connectedActorIds.has(item.id.toString())),
-        )
-        setSearchResults(filteredResults)
+        );
+        setSearchResults(filteredResults);
       } catch (error) {
-        console.error('Failed to search:', error)
-        setSearchResults([])
+        console.error("Failed to search:", error);
+        setSearchResults([]);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
     [connectedActorIds],
-  )
+  );
 
   useEffect(() => {
-    handleSearch(debouncedSearchTerm)
-  }, [debouncedSearchTerm, handleSearch])
+    handleSearch(debouncedSearchTerm);
+  }, [debouncedSearchTerm, handleSearch]);
 
   const handleSelect = (item: MultiSearchResult) => {
-    onSelect(item)
-    setSearchTerm('')
-    setSearchResults([])
-  }
+    onSelect(item);
+    setSearchTerm("");
+    setSearchResults([]);
+  };
 
   return (
     <Command className="w-full max-w-md rounded-lg border shadow-md">
@@ -93,7 +93,7 @@ export function GameSearch({ onSelect, connectedActorIds }: GameSearchProps) {
                   alt={item.name || item.title}
                 />
                 <AvatarFallback className="rounded-sm">
-                  {item.media_type === 'person' ? (
+                  {item.media_type === "person" ? (
                     <User className="h-4 w-4" />
                   ) : (
                     <Film className="h-4 w-4" />
@@ -106,5 +106,5 @@ export function GameSearch({ onSelect, connectedActorIds }: GameSearchProps) {
         </CommandGroup>
       </CommandList>
     </Command>
-  )
+  );
 }

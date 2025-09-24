@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { ActorSearch } from '@/components/actor-search'
-import { Button } from '@/components/ui/button'
-import { type Actor } from '@/types/tmdb'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { ActorSearch } from "@/components/actor-search";
+import { Button } from "@/components/ui/button";
+import { type Actor } from "@/types/tmdb";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -12,19 +12,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { HelpCircle } from 'lucide-react'
+} from "@/components/ui/dialog";
+import { HelpCircle } from "lucide-react";
 
 export default function HomePage() {
-  const [actor1, setActor1] = useState<Actor | null>(null)
-  const [actor2, setActor2] = useState<Actor | null>(null)
-  const router = useRouter()
+  const [actor1, setActor1] = useState<Actor | null>(null);
+  const [actor2, setActor2] = useState<Actor | null>(null);
+  const router = useRouter();
 
   const handleStartGame = () => {
     if (actor1 && actor2) {
-      router.push(`/connect?actor1=${actor1.id}&actor2=${actor2.id}`)
+      router.push(`/connect?actor1=${actor1.id}&actor2=${actor2.id}`);
     }
-  }
+  };
 
   return (
     <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
@@ -60,9 +60,7 @@ export default function HomePage() {
               </div>
               <div>
                 <h3 className="font-bold">Connect the Stars</h3>
-                <p>
-                  Challenge yourself to find the shortest path possible!
-                </p>
+                <p>Challenge yourself to find the shortest path possible!</p>
               </div>
             </div>
           </DialogContent>
@@ -100,5 +98,5 @@ export default function HomePage() {
         </Button>
       </div>
     </main>
-  )
+  );
 }
