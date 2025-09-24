@@ -43,20 +43,60 @@ export function ActorSearch({
   const [searchResults, setSearchResults] = useState<Actor[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Helper function para validar se um item é um Actor válido
+  const isValidActor = (item: any): item is Actor => {
+    return item !== null && 
+           item !== undefined && 
+           typeof item.id === 'number' &&
+           typeof item.name === 'string';
+  };
+
+  // Função para renderizar um item de ator
+  const renderActorItem = (actor: Actor) => {
+    const isSelected = selectedActor?.id === actor.id;
+    return (
+      <CommandItem
+        key={actor.id}
+        value={actor.name}
+        onSelect={() => handleSelect(actor)}
+        disabled={disabledActors.some((a) => a?.id === actor.id)}
+        className="flex items-center gap-2"
+      >
+        <Avatar className="h-8 w-8">
+          <AvatarImage
+            src={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
+            alt={actor.name}
+          />
+          <AvatarFallback>{actor.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <span>{actor.name}</span>
+        <Check
+          className={cn(
+            "ml-auto h-4 w-4",
+            isSelected ? "opacity-100" : "opacity-0"
+          )}
+        />
+      </CommandItem>
+    );
+  };
+
   const handleSearch = useCallback(async (query: string) => {
     if (query.length < 2) {
-      setSearchResults([] as Actor[]);
+      setSearchResults([]);
       return;
     }
 
     setIsLoading(true);
     try {
       const response = await fetch(`/api/search/person?query=${query}`);
-      const data: SearchPersonResponse = await response.json();
-      setSearchResults(data.results || [] as Actor[]);
+      if (!response.ok) {
+        throw new Error("Failed to fetch search results");
+      }
+      const data = (await response.json()) as SearchPersonResponse;
+      setSearchResults(data.results ?? []);
     } catch (error) {
       console.error("Failed to search for actors:", error);
-      setSearchResults([] as Actor[]);
+      setSearchResults([]);
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +110,7 @@ export function ActorSearch({
     onSelectActor(actor);
     setOpen(false);
     setSearchTerm("");
-    setSearchResults([] as Actor[]);
+    setSearchResults([]);
   };
 
   const handleClear = () => {
@@ -93,7 +133,7 @@ export function ActorSearch({
         if (!response.ok) {
           throw new Error("Failed to fetch actor details");
         }
-        const actorDetails: Actor = await response.json();
+        const actorDetails = (await response.json()) as Actor;
         onSelectActor(actorDetails);
       } catch (error) {
         console.error("Failed to fetch random actor details:", error);
@@ -178,36 +218,7 @@ export function ActorSearch({
                       <CommandEmpty>No results found.</CommandEmpty>
                     )}
                     <CommandGroup>
-                      {searchResults.map((actor: Actor) => (
-                        <CommandItem
-                          key={actor.id}
-                          value={actor.name}
-                          onSelect={() => handleSelect(actor)}
-                          disabled={disabledActors.some(
-                            (a) => a?.id === actor.id,
-                          )}
-                          className="flex items-center gap-2"
-                        >
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage
-                              src={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
-                              alt={actor.name}
-                            />
-                            <AvatarFallback>
-                              {actor.name.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span>{actor.name}</span>
-                          <Check
-                            className={cn(
-                              "ml-auto h-4 w-4",
-                              selectedActor?.id === actor.id
-                                ? "opacity-100"
-                                : "opacity-0",
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
+                      {searchResults.filter(isValidActor).map(renderActorItem)}
                     </CommandGroup>
                   </CommandList>
                 </Command>
