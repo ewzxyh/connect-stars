@@ -65,9 +65,13 @@ export const MovieGraph = forwardRef<MovieGraphRef, MovieGraphProps>(
     const layout = {
       name: "breadthfirst",
       fit: true,
-      padding: 30,
-      spacingFactor: 1.5,
+      padding: 100,
+      spacingFactor: 2,
+      nodeSeparation: 100,
       avoidOverlap: true,
+      animate: true,
+      animationDuration: 500,
+      animationEasing: "ease-out",
     };
 
     useImperativeHandle(ref, () => ({
@@ -84,17 +88,22 @@ export const MovieGraph = forwardRef<MovieGraphRef, MovieGraphProps>(
       {
         selector: "node",
         style: {
-          width: 100,
-          height: 100,
+          width: 120,
+          height: 180,
           label: "data(label)",
           "text-valign": "bottom",
           "text-halign": "center",
-          "text-margin-y": 8,
-          "background-color": "#fff",
+          "text-margin-y": 12,
+          "font-family": "Geist",
+          "font-size": 14,
+          "font-weight": 400,
+          "text-wrap": "wrap",
+          "text-max-width": "180px",
+          color: "hsl(var(--foreground))",
+          "background-color": "hsl(var(--card))",
           "background-fit": "cover",
-          "border-color": "#000",
-          "border-width": 2,
-          "border-opacity": 0.5,
+          "background-clip": "none",
+          "box-shadow": "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
         },
       },
       {
@@ -102,39 +111,67 @@ export const MovieGraph = forwardRef<MovieGraphRef, MovieGraphProps>(
         style: {
           "background-image": "data(image)",
           shape: "round-rectangle",
+          "background-color": "hsl(var(--primary) / 0.1)",
         },
       },
       {
         selector: 'node[type="movie"]',
         style: {
           "background-image": "data(image)",
-          shape: "rectangle",
+          shape: "round-rectangle",
+          "background-color": "hsl(var(--secondary) / 0.1)",
         },
       },
       {
         selector: "edge",
         style: {
-          width: 4,
-          "line-color": "#facc15", // yellow-400
-          "target-arrow-color": "#facc15",
-          "curve-style": "bezier",
+          width: 3,
+          "line-color": "hsl(var(--primary) / 1.0)",
+          "curve-style": "straight",
+          "line-cap": "round",
+          opacity: 1.0,
         },
       },
       {
         selector: ".highlighted",
         style: {
-          "border-color": "#22c55e", // green-500
-          "border-width": 4,
-          "line-color": "#22c55e",
-          "target-arrow-color": "#22c55e",
-          "transition-property": "border-color, line-color, target-arrow-color",
-          "transition-duration": "0.5s",
+          "box-shadow": "0 0 0 3px hsl(var(--primary)), 0 15px 35px -5px rgba(0, 0, 0, 0.2)",
+          "line-color": "hsl(var(--primary))",
+          opacity: 1,
+          "transition-property": "box-shadow, line-color, opacity",
+          "transition-duration": "0.3s",
+          "transition-timing-function": "cubic-bezier(0.4, 0, 0.2, 1)",
+        },
+      },
+      {
+        selector: "node:hover",
+        style: {
+          "box-shadow": "0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 15px -8px rgba(0, 0, 0, 0.1)",
+          "transition-property": "box-shadow",
+          "transition-duration": "0.2s",
+          "transition-timing-function": "cubic-bezier(0.4, 0, 0.2, 1)",
+        },
+      },
+      {
+        selector: "edge:hover",
+        style: {
+          width: 4,
+          opacity: 1,
+          "line-color": "hsl(var(--primary))",
+          "transition-property": "width, opacity, line-color",
+          "transition-duration": "0.2s",
         },
       },
     ];
 
     return (
-      <div className="h-full w-full">
+      <div className="h-full w-full relative overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted/20 pointer-events-none" />
+        
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-[0.02] pointer-events-none graph-grid-pattern" />
+        
         <CytoscapeComponent
           elements={CytoscapeComponent.normalizeElements(initialElements)}
           style={{ width: "100%", height: "100%" }}
@@ -142,6 +179,15 @@ export const MovieGraph = forwardRef<MovieGraphRef, MovieGraphProps>(
           layout={layout}
           cy={(cy) => {
             cyRef.current = cy;
+            
+            // Add smooth zoom and pan interactions
+            cy.userZoomingEnabled(true);
+            cy.userPanningEnabled(true);
+            cy.boxSelectionEnabled(false);
+            
+            // Set zoom limits for better UX
+            cy.minZoom(0.3);
+            cy.maxZoom(2);
           }}
         />
       </div>
